@@ -1,0 +1,112 @@
+<?php
+// Инициализация сессии.
+session_start();
+
+ini_set('date.timezone', 'Europe/Moscow');
+include_once 'classes/SafeMySQL.php';
+
+$db = new SafeMySQL();
+if (!empty($_GET['logout']))
+    if ($_GET['logout'] == 'y')
+    {
+        session_unset();
+        session_destroy();
+    }
+?>
+
+<? require_once "header.php";?>
+    <h1 class="first">Вход в личный кабинет</h1>
+
+    <?php
+    if (empty($_GET['logout']) && !empty($_SESSION['iduser'])):
+        ?>
+        <div align="right" style="margin-top: -48px;">
+
+            <b >Уровень доступа:
+                <?php
+                switch ($_SESSION['type'])
+                {
+                    default: case 0:
+                    echo ' пользователь';
+                    break;
+
+                    case 1:
+                        echo ' администратор';
+                        break;
+
+                    case 2:
+                        echo ' владелец магазина';
+
+                }
+                ?></b>
+
+
+            <br>
+            <a href="/index.php?logout=y"><font style="color: #892121;">[ Выход ]</font></a>
+        </div>
+    <?php endif; ?>
+
+    <div  style="margin-top: 100px;">
+        <?php
+        if (empty($_SESSION['iduser']) && empty($_GET['cat']))
+        {
+            include 'add/fauth.php';
+            ?>
+
+            <?php
+        }
+        else if (!empty($_SESSION['iduser']))
+        {
+        ?>
+        <div id="navigator">
+            <?php
+            if ($_SESSION['type'] == 0):
+            ?>
+            <hr>
+            <a href="/list/myorders"><font color="green" style=" border: #551A8B; ">Мои покупки</font></a><br>
+            <hr>
+            <?php
+            endif;
+
+
+
+            if ($_SESSION['type'] == 1):
+                ?>
+                <hr>
+                <a href="/list/levels">Изменить уровень доступа</a><br>
+                <a href="/add/fproduct">Добавить товар</a><br>
+                <a href="/list/products">Удалить товар</a><br>
+            <?php
+            endif;
+            if ($_SESSION['type'] == 1):
+                ?>
+                <hr>
+                <a href="/list/orders">Заказы</a><br>
+            <?php
+            endif;
+            if ($_SESSION['type'] == 1 || $_SESSION['type'] == 2):
+                ?>
+                <hr>
+                <a href="/list/profit">Прибыль</a><br>
+                <a href="/list/rating.php">Рейтинг товаров</a><br> </div>
+            <?php
+            endif;
+
+            }
+            ?>
+
+
+        <?php if (!empty($_GET['cat'])): ?>
+            <div id="board">
+                <?php
+
+                include $_GET['cat'].'/'.$_GET['f'];
+                ?>
+            </div>
+
+
+        <?php endif; ?>
+    </div>
+
+
+<?require_once "footer.php";?>
